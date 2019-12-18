@@ -6,19 +6,17 @@
 import { isFunction, noop } from 'lodash';
 
 export default function hijack() {
-
   // FIXME umi unmount feature request
   // @see http://gitlab.alipay-inc.com/bigfish/bigfish/issues/1154
-  let rawHistoryListen = (..._: any[]) => noop;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  let rawHistoryListen = (_: any) => noop;
   const historyListeners: Array<typeof noop> = [];
   const historyUnListens: Array<typeof noop> = [];
 
   if ((window as any).g_history && isFunction((window as any).g_history.listen)) {
-
     rawHistoryListen = (window as any).g_history.listen.bind((window as any).g_history);
 
     (window as any).g_history.listen = (listener: typeof noop) => {
-
       historyListeners.push(listener);
 
       const unListen = rawHistoryListen(listener);
@@ -33,7 +31,6 @@ export default function hijack() {
   }
 
   return function free() {
-
     let rebuild = noop;
 
     /*

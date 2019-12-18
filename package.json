@@ -1,25 +1,31 @@
 {
   "name": "qiankun",
-  "version": "1.1.5",
+  "version": "1.3.9",
   "description": "An completed implementation of Micro Frontends",
+  "keywords": [
+    "micro frontend",
+    "microfrontend",
+    "micro frontends"
+  ],
   "main": "./lib/index.js",
-  "module": "./esm/index.js",
-  "types": "./esm/index.d.ts",
+  "module": "./es/index.js",
+  "types": "./es/index.d.ts",
   "sideEffects": false,
   "scripts": {
-    "start": "npm run start:main & npm run start:react16 & npm run start:react15 & npm run start:vue",
-    "install:examples": "npm run build && cd examples/main && npm i && cd ../react16 && npm i && cd ../react15 && npm i && cd ../vue && npm i",
-    "start:main": "cd examples/main && npm start",
-    "start:react16": "cd examples/react16 && npm start",
-    "start:react15": "cd examples/react15 && npm start",
-    "start:vue": "cd examples/vue && npm start",
-    "build": "npm run build:esm && npm run build:cjs",
-    "build:esm": "rm -fr esm && tsc",
-    "build:cjs": "rm -fr lib && tsc -p tsconfig.cjs.json",
-    "prepush": "npm run lint",
+    "start": "concurrently \"yarn start:main\" \"yarn start:react16\" \"yarn start:react15\" \"yarn start:vue\"",
+    "install:examples": "yarn build && cd examples/main && yarn && cd ../react16 && yarn && cd ../react15 && yarn && cd ../vue && yarn",
+    "start:main": "cd examples/main && yarn start",
+    "start:react16": "cd examples/react16 && yarn start",
+    "start:react15": "cd examples/react15 && yarn start",
+    "start:vue": "cd examples/vue && yarn start",
+    "build": "father-build",
     "release": "np --no-cleanup --yolo --no-publish",
-    "prepublish": "npm run lint && npm run build",
-    "lint": "tslint 'src/**/*.ts'",
+    "prepublishOnly": "yarn lint && yarn build",
+    "lint": "yarn lint:js && yarn lint:prettier",
+    "lint:js": "eslint --cache --ext .js,.jsx,.ts,.tsx --format=pretty ./src",
+    "lint:fix": "yarn lint:js -- --fix",
+    "lint:prettier": "check-prettier lint",
+    "prettier": "prettier -c --write **/*",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -27,7 +33,8 @@
     "url": "git+https://github.com/kuitos/qiankun.git"
   },
   "files": [
-    "esm",
+    "dist",
+    "es",
     "lib"
   ],
   "author": "Kuitos",
@@ -37,18 +44,40 @@
   },
   "homepage": "https://github.com/kuitos/qiankun#readme",
   "dependencies": {
-    "import-html-entry": "^1.0.0",
+    "@babel/runtime": "^7.5.5",
+    "import-html-entry": "^1.3.7",
     "lodash": "^4.17.11",
     "single-spa": "^4.3.4",
-    "tslib": "^1.9.3"
+    "tslib": "^1.10.0"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.129",
-    "@types/node": "^12.0.2",
+    "@types/vfile-message": "1.x",
+    "@umijs/fabric": "^1.1.10",
+    "babel-plugin-import": "^1.12.1",
+    "check-prettier": "^1.0.3",
+    "concurrently": "^4.1.2",
+    "father-build": "^1.7.0",
     "husky": "^2.3.0",
+    "lint-staged": "^9.4.2",
     "np": "^5.0.3",
-    "tslint": "^5.16.0",
-    "tslint-eslint-rules": "^5.4.0",
+    "prettier": "^1.18.2",
+    "rimraf": "^3.0.0",
     "typescript": "^3.4.5"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "**/*.{js,ts,json,css,md}": [
+      "yarn prettier",
+      "git add"
+    ],
+    "**/*.{js,ts}": [
+      "yarn lint:fix",
+      "git add"
+    ]
   }
 }

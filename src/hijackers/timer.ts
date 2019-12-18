@@ -6,10 +6,10 @@
 import { noop } from 'lodash';
 import { sleep } from '../utils';
 
-export default function hijack() {
+const rawWindowInterval = window.setInterval;
+const rawWindowTimeout = window.setTimeout;
 
-  const rawWindowInterval = window.setInterval.bind(window);
-  const rawWindowTimeout = window.setTimeout.bind(window);
+export default function hijack() {
   const timerIds: number[] = [];
   const intervalIds: number[] = [];
 
@@ -20,7 +20,7 @@ export default function hijack() {
     return intervalId;
   };
 
-  window.setTimeout = (...args: any[]) => {
+  (window as Window).setTimeout = (...args: any[]) => {
     // @ts-ignore
     const timerId = rawWindowTimeout(...args);
     timerIds.push(timerId);
